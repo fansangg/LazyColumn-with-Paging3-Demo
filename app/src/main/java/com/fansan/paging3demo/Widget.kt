@@ -124,14 +124,16 @@ fun LoadingItem() {
             modifier = Modifier
                 .fillMaxHeight()
                 .wrapContentWidth()
-                .align(Alignment.Center)
+                .align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.size(20.dp).padding(end = 5.dp))
             Text(
                 text = "正在加载中...",
                 color = Color.Black,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(start = 5.dp)
             )
         }
     }
@@ -139,31 +141,36 @@ fun LoadingItem() {
 
 @Composable
 fun ErrorItem(retryClick: () -> Unit) {
-    Text(
-        text = "加载失败,请重试",
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(45.dp)
-            .background(color = Color.White)
-            .clickable(onClick = retryClick),
-        fontSize = 15.sp,
-        color = Color.Black,
-        textAlign = TextAlign.Center
-    )
+            .clickable(onClick = retryClick)
+            .height(45.dp), contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "加载失败,请重试",
+            fontSize = 15.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
-fun NoMoreItem() {
-    Text(
-        text = "没有更多数据了",
+fun NoMoreDataItem() {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(45.dp)
-            .background(color = Color.White),
-        fontSize = 15.sp,
-        color = Color.Black,
-        textAlign = TextAlign.Center
-    )
+            .height(45.dp), contentAlignment = Alignment.Center
+    ) {
+
+        Text(
+            text = "没有更多数据了",
+            fontSize = 15.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+    }
 }
 
 @Composable
