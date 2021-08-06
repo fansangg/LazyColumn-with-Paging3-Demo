@@ -116,7 +116,7 @@ fun MainItem(item: Data.Entity) {
 fun LoadingItem() {
     Box(
         Modifier
-            .height(30.dp)
+            .height(45.dp)
             .fillMaxWidth()
             .background(color = Color.White)
     ) {
@@ -143,7 +143,7 @@ fun ErrorItem(retryClick: () -> Unit) {
         text = "加载失败,请重试",
         modifier = Modifier
             .fillMaxWidth()
-            .height(30.dp)
+            .height(45.dp)
             .background(color = Color.White)
             .clickable(onClick = retryClick),
         fontSize = 15.sp,
@@ -158,7 +158,7 @@ fun NoMoreItem() {
         text = "没有更多数据了",
         modifier = Modifier
             .fillMaxWidth()
-            .height(30.dp)
+            .height(45.dp)
             .background(color = Color.White),
         fontSize = 15.sp,
         color = Color.Black,

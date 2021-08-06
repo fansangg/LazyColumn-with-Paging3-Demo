@@ -17,7 +17,7 @@ class MainViewModel:ViewModel() {
 
     private val respority:DataRespority = DataRespority()
 
-    fun getData() = Pager(PagingConfig(pageSize = 20,initialLoadSize = 20)){
+    fun getData() = Pager(PagingConfig(pageSize = 20,initialLoadSize = 20,prefetchDistance = 1)){
         DataSource(respority)
     }.flow.cachedIn(viewModelScope)
 }
