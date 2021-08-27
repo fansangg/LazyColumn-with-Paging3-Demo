@@ -1,6 +1,7 @@
 package com.fansan.paging3demo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -11,8 +12,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -23,14 +24,19 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.fansan.paging3demo.ui.theme.Paging3DemoTheme
 import com.fansan.paging3demo.viewmodel.MainViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 class MainActivity : ComponentActivity() {
     private val model: MainViewModel by viewModels()
+    var needShowLoadingScreen = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val scope = rememberCoroutineScope()
+            var rememberSwipeRefreshState = rememberSwipeRefreshState(isRefreshing = false)
             val scaffoldState = rememberScaffoldState()
             val lazycoloumnState = rememberLazyListState()
             val pagingItems = model.getData().collectAsLazyPagingItems()
@@ -56,7 +62,9 @@ class MainActivity : ComponentActivity() {
                                 })
                         }, modifier = Modifier.clickable {
                             scope.launch {
-                                lazycoloumnState.scrollToItem(0)
+                                runCatching {
+                                    lazycoloumnState.scrollToItem(0)
+                                }
                             }
                         })
                     },
@@ -64,41 +72,51 @@ class MainActivity : ComponentActivity() {
                         MainDrawer()
                     }
                 ) {
-                    Surface(color = MaterialTheme.colors.background) {
-                        pagingItems.apply {
-                            if (loadState.refresh is LoadState.Loading) {
-                                LoadingScreen()
-                            } else if (loadState.refresh is LoadState.Error) {
-                                ErrorScreen {
-                                    refresh()
-                                }
-                            } else if (loadState.refresh is LoadState.NotLoading && itemCount == 0) {
-                                EmptyScreen()
-                            } else {
-                                LazyColumn(state = lazycoloumnState) {
-                                    items(items = pagingItems) { data ->
-                                        if (data != null) {
-                                            MainItem(item = data)
-                                        }
+                    SwipeRefresh(
+                        rememberSwipeRefreshState,
+                        onRefresh = { pagingItems.refresh() }) {
+                        Surface(color = MaterialTheme.colors.background) {
+                            pagingItems.apply {
+                                if (!needShowLoadingScreen)
+                                    rememberSwipeRefreshState.isRefreshing =
+                                        loadState.refresh is LoadState.Loading
+                                if (loadState.refresh is LoadState.Loading && needShowLoadingScreen) {
+                                        LoadingScreen()
+                                } else if (loadState.refresh is LoadState.Error) {
+                                    ErrorScreen {
+                                        refresh()
                                     }
-
-                                    when (loadState.append) {
-                                        is LoadState.Error -> {
-                                            item {
-                                                ErrorItem {
-                                                    retry()
-                                                }
+                                    needShowLoadingScreen = true
+                                } else if (loadState.refresh is LoadState.NotLoading && itemCount == 0) {
+                                    EmptyScreen()
+                                    needShowLoadingScreen = true
+                                } else {
+                                    needShowLoadingScreen = false
+                                    LazyColumn(state = lazycoloumnState) {
+                                        items(items = pagingItems) { data ->
+                                            if (data != null) {
+                                                MainItem(item = data)
                                             }
                                         }
 
-                                        is LoadState.NotLoading -> {
-                                            if (loadState.refresh !is LoadState.Loading)
-                                                item { NoMoreDataItem() }
-                                        }
+                                        when (loadState.append) {
+                                            is LoadState.Error -> {
+                                                item {
+                                                    ErrorItem {
+                                                        retry()
+                                                    }
+                                                }
+                                            }
 
-                                        is LoadState.Loading -> {
-                                            item {
-                                                LoadingItem()
+                                            is LoadState.NotLoading -> {
+                                                if (loadState.refresh !is LoadState.Loading)
+                                                    item { NoMoreDataItem() }
+                                            }
+
+                                            is LoadState.Loading -> {
+                                                item {
+                                                    LoadingItem()
+                                                }
                                             }
                                         }
                                     }

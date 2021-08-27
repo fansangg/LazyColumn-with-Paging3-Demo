@@ -1,5 +1,6 @@
 package com.fansan.paging3demo
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -127,7 +129,11 @@ fun LoadingItem() {
                 .align(Alignment.Center),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularProgressIndicator(modifier = Modifier.size(20.dp).padding(end = 5.dp))
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(20.dp)
+                    .padding(end = 5.dp)
+            )
             Text(
                 text = "正在加载中...",
                 color = Color.Black,
@@ -185,8 +191,14 @@ fun ErrorScreen(retryClick: () -> Unit) {
                 .wrapContentSize()
                 .align(Alignment.Center)
         ) {
+            Image(
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                painter = painterResource(id = R.drawable.error),
+                contentDescription = "error"
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "出错了！", color = Color.Black,
+                text = "加载失败！", color = Color.Black,
                 textAlign = TextAlign.Center,
                 fontSize = 18.sp,
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally)

@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 /**
  *@author  sc
@@ -19,8 +20,13 @@ interface ApiService {
     suspend fun getList(@Path("pageId") pageNum:Int):BaseResultData<Data?>
 
     companion object{
-        fun getService() = Retrofit.Builder().baseUrl("https://www.wanandroid.com/")
-            .client(OkHttpClient())
+        private val okHttpClient = OkHttpClient.Builder().apply {
+            connectTimeout(5000,TimeUnit.MILLISECONDS)
+            readTimeout(3000,TimeUnit.MILLISECONDS)
+            writeTimeout(3000,TimeUnit.MILLISECONDS)
+        }
+        fun getService(): ApiService = Retrofit.Builder().baseUrl("https://www.wanandroid.com/")
+            .client(okHttpClient.build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ApiService::class.java)
